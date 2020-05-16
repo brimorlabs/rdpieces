@@ -1,3 +1,7 @@
+# [BriMor Labs](https://www.brimorlabs.com)
+
+## RDPieces.pl
+
 This script will parse extracted RDP Bitmap Cache directory(ies) and attempt to rebuild some of the screenshots automatically. A user is required to extract the bmp files already, best done by using the script from https://github.com/ANSSI-FR/bmc-tools
 
 Usage example:
