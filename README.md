@@ -7,4 +7,13 @@ This script will parse extracted RDP Bitmap Cache directory(ies) and attempt to 
 Usage example:
 rdpieces.pl -source "RDPBitmapFiles" -output "Rebuilt Images"
 
-NOTE: Users must have Imagemagick installed on their system, as that program does most of the heavy lifting. Please visit https://imagemagick.org and install imagemagick if you have not done so already
+SUPPORTED PLATFORMS:
+- Windows
+- MacOS
+- \*nix
+
+REQUIREMENTS:
+- Needs output from ANSSI bmc-tools Python script (use Python 2) 
+- May require some additional Perl modules
+- On Windows, highly suggest using Strawberry Perl
+- Users must have Imagemagick installed on their system, as that program does most of the heavy lifting. Please visit https://imagemagick.org and install imagemagick if you have not done so already
