@@ -9,7 +9,7 @@ rdpieces.pl -source "RDPBitmapFiles" -output "Rebuilt Images"
 
 SUPPORTED PLATFORMS:
 - Windows
-- MacOS
+- macOS
 - \*nix
 
 REQUIREMENTS:
