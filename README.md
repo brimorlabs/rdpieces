@@ -17,3 +17,9 @@ REQUIREMENTS:
 - May require some additional Perl modules
 - On Windows, highly suggest using Strawberry Perl
 - Users must have Imagemagick installed on their system, as that program does most of the heavy lifting. Please visit https://imagemagick.org and install imagemagick if you have not done so already
+
+
+### Test-Cache-Files.zip
+
+This contains a total of three RDP Bitmap Cache file that you can use for testing. Many thanks to Kat Hedley [@4enzikat0r] (https://twitter.com/4enzikat0r) for providing them!
+
