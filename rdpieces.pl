@@ -10,8 +10,8 @@ use File::Path qw(rmtree);
 use DBI;
 
 #FOR VERSION AND BUILDDATE
-my $version = '1.0';
-my $build = '20200511';
+my $version = '1.1';
+my $build = '20201118';
 my ($DIR, $FILE, $osversion, $bmpcounter, $odabspathname, $commandlineslash, @contents, $fnamekey, %fname, %fnamelookup, %originalfilepath, $dataoutputdir, $rebuiltoutputdir, %counts, @matches, @uniqmatches, %matchesinhash, $filecounter);
 my (@tbmatches, @tbuniqmatches, $tbfilecounter, $tbfilecounter, %tbcorrelatedfiles, %tboriginalfilepath);
 my $onelessvalue=0;
@@ -139,10 +139,10 @@ foreach my $content(@contents)
 	open($FILE, "$abspathname") || die "Cannot open $content $!\n";
 	my $data = do {local $/; binmode $FILE; <$FILE>};
 	close($FILE);
-	my $header=substr($data,0,3);
-	if ( ($header !~ /BM~/) || ($filename =~/_collage/) ) #If this is not the first line, we are going to skip it. Also skipping "collage" bitmap file(s)
+	my $header=substr($data,0,4);
+	if ( ($header !~ /BM../) || ($filename =~/_collage/) ) #If this is not the first line, we are going to skip it. Also skipping "collage" bitmap file(s)
 	{
-		print STDERR "\nSkipping $abspathname, does not appear to be valid 64 x 64 Bitmap file\n"; #We skip it if it does not have the proper header
+		print STDERR "\nSkipping $abspathname, does not appear to be valid bitmap file\n"; #We skip it if it does not have the proper header
 	}
 	else
 	{
@@ -167,7 +167,18 @@ foreach my $content(@contents)
 				my $bottomfilenameoutput= $filename =~ s/\.bmp/-B\.bmp/gr;
 				my $leftfilenameoutput= $filename =~ s/\.bmp/-L\.bmp/gr;
 				my $rightfilenameoutput= $filename =~ s/\.bmp/-R\.bmp/gr;
-				my $topextraction=`magick -extract 64x5+00+00 -quiet $abspathname $dataoutputdir$topfilenameoutput`;
+				#This is where we test to see what the height and width of the tile is. Usually it will be 64 x 64, but not always
+				# We have to do this in the loop, because the values can (and do) change
+				my $tilewidthstring = substr($data,18,2); #Getting the width
+				my $tileheightstring = substr($data,22,2); #Getting the height
+				my $twval=unpack 'n*', $tilewidthstring;
+				my $thval=unpack 'n*', $tileheightstring;
+				my $tilewidth=($twval / 256);
+				my $tileheight=($thval / 256);
+				my $tilewidthminusfive=($tilewidth - 5);
+				my $tileheightminusfive=($tileheight -5);
+				#Now we extract the top slice
+				my $topextraction=`magick -extract "$tilewidth"x5+00+00 -quiet $abspathname $dataoutputdir$topfilenameoutput`;
 				my $topimagemagickdata=`magick identify -verbose -quiet $dataoutputdir$topfilenameoutput`;
 				#We identfy the key elements of the top image data chunk
 					my ($topcolors) = $topimagemagickdata =~ /\x0a\x20\x20Colors:\x20([\d]+?)\x0a/; #Finding out the color count
@@ -177,7 +188,7 @@ foreach my $content(@contents)
 						my ($topredstddev, $topgreenstddev, $topbluestddev) = $topimagemagickdata =~ /\x0a\x20\x20\x20\x20Red:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Green:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Blue:[\w\W]+?standard deviation:\x20([\d.]+?)\x20/; #Finding out the color count
 						$dbh->do("INSERT INTO TOPFILES (TOPFILENAME, TOP_COLORS, TOP_RED_STDDEV, TOP_GREEN_STDDEV, TOP_BLUE_STDDEV) VALUES (?,?,?,?,?)", undef, $filename, $topcolors, $topredstddev, $topgreenstddev, $topbluestddev);
 					}
-				my $bottomextraction=`magick -extract 64x5+00+59 -quiet $abspathname $dataoutputdir$bottomfilenameoutput`;
+				my $bottomextraction=`magick -extract "$tilewidth"x5+00+"$tileheightminusfive" -quiet $abspathname $dataoutputdir$bottomfilenameoutput`;
 				my $bottomimagemagickdata=`magick identify -verbose -quiet $dataoutputdir$bottomfilenameoutput`;
 				#We identfy the key elements of the bottom image data chunk
 					my ($bottomcolors) = $bottomimagemagickdata =~ /\x0a\x20\x20Colors:\x20([\d]+?)\x0a/; #Finding out the color count
@@ -187,7 +198,7 @@ foreach my $content(@contents)
 						my ($bottomredstddev, $bottomgreenstddev, $bottombluestddev) = $bottomimagemagickdata =~ /\x0a\x20\x20\x20\x20Red:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Green:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Blue:[\w\W]+?standard deviation:\x20([\d.]+?)\x20/; #Finding out the color count
 						$dbh->do("INSERT INTO BOTTOMFILES (BOTTOMFILENAME, BOTTOM_COLORS, BOTTOM_RED_STDDEV, BOTTOM_GREEN_STDDEV, BOTTOM_BLUE_STDDEV) VALUES (?,?,?,?,?)", undef, $filename, $bottomcolors, $bottomredstddev, $bottomgreenstddev, $bottombluestddev);
 					}
-				my $leftextraction=`magick -extract 5x64+00+00 -quiet $abspathname $dataoutputdir$leftfilenameoutput`;
+				my $leftextraction=`magick -extract 5x"$tileheight"+00+00 -quiet $abspathname $dataoutputdir$leftfilenameoutput`;
 				my $leftimagemagickdata=`magick identify -verbose -quiet $dataoutputdir$leftfilenameoutput`;
 				#We identfy the key elements of the left image data chunk
 					my ($leftcolors) = $leftimagemagickdata =~ /\x0a\x20\x20Colors:\x20([\d]+?)\x0a/; #Finding out the color count
@@ -197,7 +208,7 @@ foreach my $content(@contents)
 						my ($leftredstddev, $leftgreenstddev, $leftbluestddev) = $leftimagemagickdata =~ /\x0a\x20\x20\x20\x20Red:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Green:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Blue:[\w\W]+?standard deviation:\x20([\d.]+?)\x20/; #Finding out the color count
 						$dbh->do("INSERT INTO LEFTFILES (LEFTFILENAME, LEFT_COLORS, LEFT_RED_STDDEV, LEFT_GREEN_STDDEV, LEFT_BLUE_STDDEV) VALUES (?,?,?,?,?)", undef, $filename, $leftcolors, $leftredstddev, $leftgreenstddev, $leftbluestddev);
 					}
-				my $rightextraction=`magick -extract 5x64+59+00 -quiet $abspathname $dataoutputdir$rightfilenameoutput`;
+				my $rightextraction=`magick -extract 5x"$tileheight"+"$tilewidthminusfive"+00 -quiet $abspathname $dataoutputdir$rightfilenameoutput`;
 				my $rightimagemagickdata=`magick identify -verbose -quiet $dataoutputdir$rightfilenameoutput`;
 				#We identfy the key elements of the right image data chunk
 					my ($rightcolors) = $rightimagemagickdata =~ /\x0a\x20\x20Colors:\x20([\d]+?)\x0a/; #Finding out the color count
@@ -381,7 +392,16 @@ sub changes ()
 	print "\n\n";
 	print "             ==========CHANGES/REVISIONS==========           \n";
 	print "                 Version: $version (Build $build)            \n";
+	print "      - Refined bitmap header processing/error checking      \n";
+	print "      - Changed height/width to defined value, rather than   \n";
+	print "            assumed value of 64 and 64, respectively         \n";
+	print "            ========== Version 1.0 ==========              \n";
+	print "                 Version: 1.0 (Build 20200511)            \n";
 	print "            First version of script. Python sucks            \n";
+
+
+	my $version = '1.0';
+	my $build = '20200511';
 
 	print &info;
 }
