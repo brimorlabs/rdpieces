@@ -2,9 +2,8 @@
 
 ## RDPieces.pl
 
-This script will parse extracted RDP Bitmap Cache directory(ies) and attempt to rebuild some of the screenshots automatically. A user is required to extract the bmp files already, best done by using the script from https://github.com/ANSSI-FR/bmc-tools 
+This script will parse extracted RDP Bitmap Cache directory(ies) and attempt to rebuild some of the screenshots automatically. A user is required to extract the bmp files already, best done by using the script from https://github.com/ANSSI-FR/bmc-tools (The small bug that caused issues within their script has been fixed, and I have removed the modified from this repository. Sorry for not updating this until today!)
 
-(NOTE November 15, 2020: There is a bug with the "bmc-tools" script in that the data within the header of the output bitmap file size is four bytes too small. A modified version of the bmc-tools script that fixes this issue will be uploaded here, I recommend using this version until the bmc-tools script is updated)
 
 Usage example:
 rdpieces.pl -source "RDPBitmapFiles" -output "Rebuilt Images"
