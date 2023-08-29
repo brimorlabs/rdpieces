@@ -149,7 +149,7 @@ foreach my $content(@contents)
 		#The awesome part of this program goes here!
 		print STDERR "\n***** Processing $abspathname\n";
 		#Frst, we just imagemagick to determine the verbose details of the file
-		my $imagemagickdata=`magick identify -verbose -quiet $abspathname`;
+		my $imagemagickdata=`magick identify -verbose -quiet "$abspathname"`;
 		#Second, we look at the Histogram data to ensure there is color varaince in the image
 		if ($imagemagickdata=~/\x0a\x20\x20Histogram\x3a\x0a([\w\W]+?)\x0a\x20\x20Rendering intent\x3a/)
 		{
@@ -178,8 +178,8 @@ foreach my $content(@contents)
 				my $tilewidthminusfive=($tilewidth - 5);
 				my $tileheightminusfive=($tileheight -5);
 				#Now we extract the top slice
-				my $topextraction=`magick -extract "$tilewidth"x5+00+00 -quiet $abspathname $dataoutputdir$topfilenameoutput`;
-				my $topimagemagickdata=`magick identify -verbose -quiet $dataoutputdir$topfilenameoutput`;
+				my $topextraction=`magick -extract "$tilewidth"x5+00+00 -quiet "$abspathname" "$dataoutputdir$topfilenameoutput"`;
+				my $topimagemagickdata=`magick identify -verbose -quiet "$dataoutputdir$topfilenameoutput"`;
 				#We identfy the key elements of the top image data chunk
 					my ($topcolors) = $topimagemagickdata =~ /\x0a\x20\x20Colors:\x20([\d]+?)\x0a/; #Finding out the color count
 					if ($topcolors >=2)
@@ -188,8 +188,8 @@ foreach my $content(@contents)
 						my ($topredstddev, $topgreenstddev, $topbluestddev) = $topimagemagickdata =~ /\x0a\x20\x20\x20\x20Red:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Green:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Blue:[\w\W]+?standard deviation:\x20([\d.]+?)\x20/; #Finding out the color count
 						$dbh->do("INSERT INTO TOPFILES (TOPFILENAME, TOP_COLORS, TOP_RED_STDDEV, TOP_GREEN_STDDEV, TOP_BLUE_STDDEV) VALUES (?,?,?,?,?)", undef, $filename, $topcolors, $topredstddev, $topgreenstddev, $topbluestddev);
 					}
-				my $bottomextraction=`magick -extract "$tilewidth"x5+00+"$tileheightminusfive" -quiet $abspathname $dataoutputdir$bottomfilenameoutput`;
-				my $bottomimagemagickdata=`magick identify -verbose -quiet $dataoutputdir$bottomfilenameoutput`;
+				my $bottomextraction=`magick -extract "$tilewidth"x5+00+"$tileheightminusfive" -quiet "$abspathname" "$dataoutputdir$bottomfilenameoutput"`;
+				my $bottomimagemagickdata=`magick identify -verbose -quiet "$dataoutputdir$bottomfilenameoutput"`;
 				#We identfy the key elements of the bottom image data chunk
 					my ($bottomcolors) = $bottomimagemagickdata =~ /\x0a\x20\x20Colors:\x20([\d]+?)\x0a/; #Finding out the color count
 					if ($bottomcolors >=2)
@@ -198,8 +198,8 @@ foreach my $content(@contents)
 						my ($bottomredstddev, $bottomgreenstddev, $bottombluestddev) = $bottomimagemagickdata =~ /\x0a\x20\x20\x20\x20Red:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Green:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Blue:[\w\W]+?standard deviation:\x20([\d.]+?)\x20/; #Finding out the color count
 						$dbh->do("INSERT INTO BOTTOMFILES (BOTTOMFILENAME, BOTTOM_COLORS, BOTTOM_RED_STDDEV, BOTTOM_GREEN_STDDEV, BOTTOM_BLUE_STDDEV) VALUES (?,?,?,?,?)", undef, $filename, $bottomcolors, $bottomredstddev, $bottomgreenstddev, $bottombluestddev);
 					}
-				my $leftextraction=`magick -extract 5x"$tileheight"+00+00 -quiet $abspathname $dataoutputdir$leftfilenameoutput`;
-				my $leftimagemagickdata=`magick identify -verbose -quiet $dataoutputdir$leftfilenameoutput`;
+				my $leftextraction=`magick -extract 5x"$tileheight"+00+00 -quiet "$abspathname" "$dataoutputdir$leftfilenameoutput"`;
+				my $leftimagemagickdata=`magick identify -verbose -quiet "$dataoutputdir$leftfilenameoutput"`;
 				#We identfy the key elements of the left image data chunk
 					my ($leftcolors) = $leftimagemagickdata =~ /\x0a\x20\x20Colors:\x20([\d]+?)\x0a/; #Finding out the color count
 					if ($leftcolors >=2)
@@ -208,8 +208,8 @@ foreach my $content(@contents)
 						my ($leftredstddev, $leftgreenstddev, $leftbluestddev) = $leftimagemagickdata =~ /\x0a\x20\x20\x20\x20Red:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Green:[\w\W]+?standard deviation:\x20([\d.]+?)\x20[\w\W]+?Blue:[\w\W]+?standard deviation:\x20([\d.]+?)\x20/; #Finding out the color count
 						$dbh->do("INSERT INTO LEFTFILES (LEFTFILENAME, LEFT_COLORS, LEFT_RED_STDDEV, LEFT_GREEN_STDDEV, LEFT_BLUE_STDDEV) VALUES (?,?,?,?,?)", undef, $filename, $leftcolors, $leftredstddev, $leftgreenstddev, $leftbluestddev);
 					}
-				my $rightextraction=`magick -extract 5x"$tileheight"+"$tilewidthminusfive"+00 -quiet $abspathname $dataoutputdir$rightfilenameoutput`;
-				my $rightimagemagickdata=`magick identify -verbose -quiet $dataoutputdir$rightfilenameoutput`;
+				my $rightextraction=`magick -extract 5x"$tileheight"+"$tilewidthminusfive"+00 -quiet "$abspathname" "$dataoutputdir$rightfilenameoutput"`;
+				my $rightimagemagickdata=`magick identify -verbose -quiet "$dataoutputdir$rightfilenameoutput"`;
 				#We identfy the key elements of the right image data chunk
 					my ($rightcolors) = $rightimagemagickdata =~ /\x0a\x20\x20Colors:\x20([\d]+?)\x0a/; #Finding out the color count
 					if ($rightcolors >=2)
@@ -312,12 +312,12 @@ foreach my $uniqfinalfile (@uniquefinalfiles)
 		foreach my $processedtile (@alluniquefinalfiles)
 		{
 			# print "Processing $processedtile\n";
-			my $realfilepath=	$originalfilepath{$processedtile};
+			my $realfilepath=	"\"" . $originalfilepath{$processedtile} . "\"";
 			push (@tileswithfullfilepaths, $realfilepath);
 		}
-		my @sortedtileswithfullfilepaths = sort { substr($a,-8,4) <=> substr($b,-8,4)} @tileswithfullfilepaths;
+		my @sortedtileswithfullfilepaths = sort { substr($a,-9,4) <=> substr($b,-9,4)} @tileswithfullfilepaths;
 		# print "Testing: @sortedtileswithfullfilepaths\n";
-		my $rebuildingthelrmatching=`magick convert -quiet @sortedtileswithfullfilepaths +append $rebuiltoutputdir$uniqfinalfile.bmp `;
+		my $rebuildingthelrmatching=`magick convert -quiet @sortedtileswithfullfilepaths +append "$rebuiltoutputdir$uniqfinalfile.bmp" `;
 		$bmpcounter=$bmpcounter+1;
 		foreach my $lastfile (@sortedtileswithfullfilepaths)
 		{
